@@ -5,6 +5,7 @@ var app = require('http').createServer(handler),
     port = 3000;
 
 app.listen(port);
+io.set('log level', 1);   
 
 function handler(req, res) {
     fs.readFile(__dirname + '/views/index.html', function(err, data) {
