@@ -1,4 +1,8 @@
 sample-chat
 ===========
 
-sample-chat
+###setup
+npm install
+
+
+

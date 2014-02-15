@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Socket.IO</title>
+        <h1>Sample Chat</h1>
+    </head>
+    <body>
+        <form id="myForm" role="form">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" id="name" placeholder="name">
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <input type="text" class="form-control" id="message" placeholder="How do you feel?">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+
+        <table id="timeline" class="table">
+            <thead>
+                <tr>
+                    <th>time</th>
+                    <th>Name</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
+        <script>
+            $(function() {
+                var socket = io.connect();
+                $('#myForm').submit(function(e) {
+                    e.preventDefault();
+                    var post  = {
+                        name: $('#name').val(),
+                        message: $('#message').val()
+                    };
+                    socket.emit('message', post);
+                });
+
+                socket.on('message', function(data) {
+                    var parts = '<tr class="success"><td>' + data.time + '</td><td>' + data.name + '</td><td>' + data.message + '</td></tr>';
+                    $('#timeline').find('tbody').prepend(parts);
+                });
+
+                socket.on('leave', function(data) {
+                    var parts = '<tr class="danger"><td>' + data.time + '</td><td>' + data.name + '</td><td>' + data.message + '</td></tr>';
+                    $('#timeline').find('tbody').prepend(parts);
+                });
+            });
+        </script>
+    </body>
+</head>
