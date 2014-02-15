@@ -10,11 +10,11 @@
         <form id="myForm" role="form">
             <div class="form-group">
                 <label>Name</label>
-                <input type="text" class="form-control" id="name" placeholder="name">
+                <input type="text" class="form-control" id="name" placeholder="名無しさん">
             </div>
             <div class="form-group">
                 <label>Message</label>
-                <input type="text" class="form-control" id="message" placeholder="How do you feel?">
+                <input type="text" class="form-control" id="message" placeholder="今どんな気持ち？">
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>
@@ -22,9 +22,7 @@
         <table id="timeline" class="table">
             <thead>
                 <tr>
-                    <th>time</th>
-                    <th>Name</th>
-                    <th>Message</th>
+                    <th>Timeline</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,25 +35,28 @@
 
         <script>
             $(function() {
-                var socket = io.connect();
+                var room = io.connect('http://192.168.33.10:3000/room');
+                var chat = io.connect('http://192.168.33.10:3000/chat');
+
+                room.emit('entered');
+
                 $('#myForm').submit(function(e) {
                     e.preventDefault();
-                    var post  = {
-                        name: $('#name').val(),
-                        message: $('#message').val()
-                    };
-                    socket.emit('message', post);
+                    chat.emit('from_client', {name: $('#name').val(), message: $('#message').val()});
                 });
 
-                socket.on('message', function(data) {
-                    var parts = '<tr class="success"><td>' + data.time + '</td><td>' + data.name + '</td><td>' + data.message + '</td></tr>';
-                    $('#timeline').find('tbody').prepend(parts);
+                chat.on('from_server', function(message) {
+                    $('#timeline').find('tbody').prepend('<tr><td>' + message + '</td>');
                 });
 
-                socket.on('leave', function(data) {
-                    var parts = '<tr class="danger"><td>' + data.time + '</td><td>' + data.name + '</td><td>' + data.message + '</td></tr>';
-                    $('#timeline').find('tbody').prepend(parts);
+                room.on('someone_entered', function(message) {
+                    $('#timeline').find('tbody').prepend('<tr class="info"><td>' + message + '</td>');
                 });
+
+                room.on('someone_left', function(message) {
+                    $('#timeline').find('tbody').prepend('<tr class="warning"><td>' + message + '</td>');
+                });
+
             });
         </script>
     </body>

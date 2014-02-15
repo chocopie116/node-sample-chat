@@ -19,31 +19,34 @@ function handler(req, res) {
     });
 }
 
-io.sockets.on('connection', function(client) {
-    client.on('message', function(data) {
-        data.time = getDateTimeString();
-        //接続ソケットのみ
-        //client.emit('message', data);
+//チャット
+var chat = io.of('/chat').on('connection', function(client) {
+    client.on('from_client', function(data) {
+        var message  =  data.name +  'さん : ' + data.message;
+        //接続ソケット全て(=自分含む全員)
+        io.of('/chat').emit('from_server', getLineMessage(message));
+    });
+});
 
-        //自分以外のソケット
-        //client.broadcast.emit('message', data);
-
-        //接続ソケット全て
-        io.sockets.emit('message', data);
+//入退室
+var room = io.of('/room').on('connection', function(client) {
+    client.on('entered', function() {
+        //接続ソケットのみ(=自分のみ)
+        client.emit('someone_entered', getLineMessage("挨拶をしてみましょう。"));
+        //接続ソケット以外(=自分以外)
+        client.broadcast.emit('someone_entered', getLineMessage('誰かが入出しました。'));
     });
 
     client.on('disconnect', function() {
-        var data = {};
-        data.time = getDateTimeString();
-        data.name = 'someone';
-        data.message = 'left room';
-        io.sockets.emit('leave', data);
+        //接続ソケット以外(=自分以外)
+        client.broadcast.emit('someone_left', getLineMessage('誰かが退室しました。'));
     });
 });
 
 //日付を返すだけ
-function getDateTimeString() {
-    var dt= new Date();
+function getLineMessage(message) {
+    var dt= new Date(),
+        message;
     dt.setHours(dt.getHours() + 9);
-    return  dt.getFullYear() + '/' + dt.getMonth() + '/' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds();
+    return '[' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds() + '] ' + message;
 }
