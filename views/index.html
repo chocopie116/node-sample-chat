@@ -32,6 +32,7 @@
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
         <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
+        <script src="/javascript/global.js"></script>
 
         <script>
             $(function() {
@@ -46,7 +47,7 @@
                 });
 
                 chat.on('from_server', function(message) {
-                    $('#timeline').find('tbody').prepend('<tr><td>' + message + '</td>');
+                    $('#timeline').find('tbody').prepend('<tr><td>' + $.h(message) + '</td>');
                 });
 
                 room.on('someone_entered', function(message) {
