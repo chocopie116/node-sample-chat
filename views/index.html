@@ -50,8 +50,10 @@
                     $('#timeline').find('tbody').prepend('<tr><td>' + $.h(message) + '</td>');
                 });
 
-                room.on('someone_entered', function(message) {
-                    $('#timeline').find('tbody').prepend('<tr class="info"><td>' + message + '</td>');
+                room.on('someone_entered', function(messages) {
+                    $.each(messages, function(key, value){
+                        $('#timeline').find('tbody').prepend('<tr class="info"><td>' + value + '</td>');
+                    });
                 });
 
                 room.on('someone_left', function(message) {

@@ -23,12 +23,14 @@ server.listen(app.get('port'), function(){
 var io = socketIO.listen(server);
 io.set('log level', 1);   
 
+var chatHistory = [];
 //チャット
 var chat = io.of('/chat').on('connection', function(client) {
     client.on('from_client', function(data) {
-        var message  =  data.name +  'さん : ' + data.message;
+        var message  =  getLineMessage(data.name +  'さん : ' + data.message);
+        chatHistory.push(message);
         //接続ソケット全て(=自分含む全員)
-        io.of('/chat').emit('from_server', getLineMessage(message));
+        io.of('/chat').emit('from_server', message);
     });
 });
 
@@ -36,9 +38,13 @@ var chat = io.of('/chat').on('connection', function(client) {
 var room = io.of('/room').on('connection', function(client) {
     client.on('entered', function() {
         //接続ソケットのみ(=自分のみ)
-        client.emit('someone_entered', getLineMessage("挨拶をしてみましょう。"));
+        var messages = chatHistory;
+        messages.push(getLineMessage("挨拶をしてみましょう"));
+        client.emit('someone_entered', messages);
         //接続ソケット以外(=自分以外)
-        client.broadcast.emit('someone_entered', getLineMessage('誰かが入出しました。'));
+        var array = [];
+        array.push(getLineMessage('誰かが入室しました'));
+        client.broadcast.emit('someone_entered', array);
     });
 
     client.on('disconnect', function() {
