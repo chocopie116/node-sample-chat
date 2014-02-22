@@ -1,23 +1,27 @@
-//Module Dependency
-var app = require('http').createServer(handler),
-    io = require('socket.io').listen(app),
-    fs = require('fs'),
-    port = process.env.PORT || 3000;
+var express = require('express'),
+    http = require('http'),
+    path = require('path'),
+    socketIO = require('socket.io');
 
-app.listen(port);
+var app = express();
+
+//middleware
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.use(app.router); //get, post, delete, put
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', function(req, res) {
+    res.sendfile(__dirname + '/views/index.html');
+});
+
+server = http.createServer(app);
+server.listen(app.get('port'), function(){
+    console.log("Express server listening on port " + app.get('port'));
+});
+
+var io = socketIO.listen(server);
 io.set('log level', 1);   
-
-function handler(req, res) {
-    fs.readFile(__dirname + '/views/index.html', function(err, data) {
-        if (err) {
-            res.writeHead(500);
-            return res.end('error');
-        }
-        res.writeHead(200);
-        res.write(data);
-        res.end();
-    });
-}
 
 //チャット
 var chat = io.of('/chat').on('connection', function(client) {
