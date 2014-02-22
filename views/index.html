@@ -35,8 +35,8 @@
 
         <script>
             $(function() {
-                var room = io.connect('http://192.168.33.10:3000/room');
-                var chat = io.connect('http://192.168.33.10:3000/chat');
+                var room = io.connect('/room');
+                var chat = io.connect('/chat');
 
                 room.emit('entered');
 
