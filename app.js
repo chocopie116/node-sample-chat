@@ -21,7 +21,16 @@ server.listen(app.get('port'), function(){
 });
 
 var io = socketIO.listen(server);
-io.set('log level', 1);   
+io.configure('development', function(){
+    io.set('log level', 1);
+    io.set('transports', [
+        //'websocket' aws環境だとwebsocketでつなぐと遅延する問題を回避
+         'flashsocket'
+        , 'htmlfile'
+        , 'xhr-polling'
+        , 'jsonp-polling'
+        ]);
+});
 
 var chatHistory = [];
 //チャット
