@@ -6,30 +6,35 @@
         <title>Socket.IO</title>
         <h1>Sample Chat</h1>
     </head>
-    <body>
+    <body style="margin-left:50px">
         <form id="myForm" role="form">
             <div class="form-group">
                 <label>Name</label>
-                <input type="text" class="form-control" id="name" placeholder="名無しさん">
+                <input type="text" class="form-control" id="name" placeholder="名無しさん" required>
             </div>
             <div class="form-group">
                 <label>Message</label>
-                <input type="text" class="form-control" id="message" placeholder="今どんな気持ち？">
+                <input type="text" class="form-control" id="message" placeholder="今どんな気持ち？" required>
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
         </form>
 
+            <h3>チャットルームの現在の人数は</h3>
+            <p id="attendance" class="odometer" style='font-size:40px;'>0</p>
+
         <table id="timeline" class="table">
             <thead>
                 <tr>
-                    <th>Timeline</th>
+                    <th>Chat</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
 
+        <link rel="stylesheet" href="http://github.hubspot.com/odometer/themes/odometer-theme-car.css" />
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <script src="http://github.hubspot.com/odometer/odometer.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/javascript/global.js"></script>
@@ -43,23 +48,22 @@
 
                 $('#myForm').submit(function(e) {
                     e.preventDefault();
-                    chat.emit('from_client', {name: $('#name').val(), message: $('#message').val()});
+                    var input = $('#message');
+                    if (input.val) {
+                        chat.emit('from_client', {name: $('#name').val(), message: input.val() , room: 'hoge'});
+                    }
+                    input.val('');
                 });
 
-                chat.on('from_server', function(message) {
-                    $('#timeline').find('tbody').prepend('<tr><td>' + $.h(message) + '</td>');
+                chat.on('from_server', function(messages) {
+                    $.each(messages, function(i, val) {
+                        $('#timeline').find('tbody').prepend('<tr><td>' + $.h(val) + '</td>');
+                        });
                 });
 
-                room.on('someone_entered', function(messages) {
-                    $.each(messages, function(key, value){
-                        $('#timeline').find('tbody').prepend('<tr class="info"><td>' + value + '</td>');
-                    });
+                room.on('from_server', function(number) {
+                        $('#attendance').text(number);
                 });
-
-                room.on('someone_left', function(message) {
-                    $('#timeline').find('tbody').prepend('<tr class="warning"><td>' + message + '</td>');
-                });
-
             });
         </script>
     </body>
