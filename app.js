@@ -46,10 +46,11 @@ var chat = io.of('/chat').on('connection', function(client) {
 
 var attendance = 0;
 var room = io.of('/room').on('connection', function(client) {
+
     client.on('entered', function() {
         attendance++;
         room.emit('from_server', attendance);
-        io.of('/chat').emit('from_server', chatHistory);
+        //io.of('/chat').emit('from_server', chatHistory);
     });
 
     client.on('disconnect', function() {
